@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AETHER | Autonomous Luxury Concierge</title>
+<style>
+:root{
+  --bg:#050505;
+  --bg-2:#0a0a0a;
+  --fg:#f5f0e8;
+  --muted:#9f9a91;
+  --gold:#d4af37;
+  --gold-light:#f3e5ab;
+  --accent:#ff5e3a;
+  --surface:rgba(255,255,255,0.03);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--fg);overflow-x:hidden;line-height:1.6}
+::selection{background:var(--gold);color:#000}
+
+#canvas-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.5rem 4rem;background:linear-gradient(180deg,rgba(5,5,5,0.95),transparent);backdrop-filter:blur(12px)}
+.logo{font-size:1.4rem;font-weight:700;letter-spacing:0.35em;color:var(--gold-light);text-transform:uppercase}
+.logo span{font-weight:300;color:var(--fg)}
+.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:0.85rem;letter-spacing:0.15em;text-transform:uppercase;transition:color .3s;position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-6px;left:0;width:0;height:1px;background:var(--gold);transition:width .3s}
+.nav-links a:hover{color:var(--fg)}
+.nav-links a:hover::after{width:100%}
+
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 2rem;position:relative}
+.hero-badge{display:inline-block;padding:.5rem 1.2rem;border:1px solid rgba(212,175,55,0.3);border-radius:999px;color:var(--gold);font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:2rem;animation:fadeInDown 1s ease}
+.hero h1{font-size:clamp(3rem,8vw,7rem);font-weight:200;line-height:1.05;letter-spacing:-0.03em;max-width:1100px}
+.hero h1 strong{font-weight:700;background:linear-gradient(135deg,var(--gold-light),var(--gold),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{font-size:clamp(1.1rem,2vw,1.5rem);color:var(--muted);max-width:650px;margin:2rem 0 3rem;animation:fadeInUp 1.2s ease .3s both}
+.cta-group{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;animation:fadeInUp 1.4s ease .5s both}
+.btn{padding:1rem 2.5rem;border-radius:4px;font-size:.85rem;letter-spacing:.15em;text-transform:uppercase;text-decoration:none;transition:all .3s;cursor:pointer;border:none;font-weight:600}
+.btn-primary{background:linear-gradient(135deg,var(--gold),#b8860b);color:#000;box-shadow:0 10px 40px rgba(212,175,55,0.25)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 20px 60px rgba(212,175,55,0.4)}
+.btn-ghost{border:1px solid rgba(245,240,232,0.2);color:var(--fg);background:transparent}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+
+.marquee{position:absolute;bottom:3rem;left:0;width:100%;overflow:hidden;opacity:.5}
+.marquee-inner{display:flex;gap:4rem;animation:marquee 30s linear infinite;white-space:nowrap;color:var(--muted);font-size:.75rem;letter-spacing:.2em;text-transform:uppercase}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+.section{padding:8rem 4rem;max-width:1400px;margin:0 auto}
+.section-title{font-size:clamp(2rem,4vw,3.5rem);font-weight:300;margin-bottom:1rem}
+.section-title span{color:var(--gold)}
+.section-sub{color:var(--muted);max-width:600px;margin-bottom:4rem}
+
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
+.card{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:2.5rem;transition:all .4s;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .4s}
+.card:hover{transform:translateY(-8px);border-color:rgba(212,175,55,0.25);box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+.card:hover::before{opacity:1}
+.card-icon{font-size:2rem;margin-bottom:1.5rem;color:var(--gold)}
+.card h3{font-size:1.25rem;margin-bottom:.75rem;font-weight:500}
+.card p{color:var(--muted);font-size:.95rem}
+
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center}
+.metric h4{font-size:3rem;font-weight:200;color:var(--gold-light)}
+.metric span{display:block;color:var(--muted);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;margin-top:.5rem}
+
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem}
+.price-card{padding:3rem 2.5rem;border-radius:20px;background:var(--surface);border:1px solid rgba(255,255,255,0.06);position:relative}
+.price-card.featured{border-color:var(--gold);background:linear-gradient(180deg,rgba(212,175,55,0.08),var(--surface))}
+.price-card h3{font-size:1.5rem;font-weight:400;margin-bottom:.5rem}
+.price-card .price{font-size:3.5rem;font-weight:200;margin:1.5rem 0}
+.price-card .price span{font-size:1rem;color:var(--muted)}
+.price-card ul{list-style:none;margin:2rem 0}
+.price-card li{padding:.5rem 0;color:var(--muted)}
+.price-card li::before{content:'✦';color:var(--gold);margin-right:.75rem}
+
+.demo-section{background:radial-gradient(circle at center,rgba(212,175,55,0.08),transparent 60%);text-align:center;padding:8rem 2rem}
+.demo-box{max-width:700px;margin:0 auto;background:rgba(10,10,10,0.8);border:1px solid rgba(212,175,55,0.2);border-radius:24px;padding:3rem;backdrop-filter:blur(20px)}
+.demo-box input,.demo-box select{width:100%;padding:1rem;margin:.5rem 0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--fg);font-size:1rem}
+.demo-box input:focus,.demo-box select:focus{outline:none;border-color:var(--gold)}
+.demo-box button{width:100%;margin-top:1rem}
+#demo-result{margin-top:1.5rem;padding:1rem;border-radius:8px;background:rgba(212,175,55,0.08);display:none}
+
+.faq-item{border-bottom:1px solid rgba(255,255,255,0.08);padding:1.5rem 0;cursor:pointer}
+.faq-item h4{font-weight:500;display:flex;justify-content:space-between;align-items:center}
+.faq-item p{max-height:0;overflow:hidden;transition:max-height .4s;color:var(--muted);padding-top:0}
+.faq-item.open p{max-height:200px;padding-top:1rem}
+
+footer{padding:4rem;background:#020202;border-top:1px solid rgba(255,255,255,0.06)}
+.footer-inner{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:gap;color:var(--muted);font-size:.85rem}
+.footer-inner a{color:var(--muted);text-decoration:none;margin-left:1.5rem;transition:color .3s}
+.footer-inner a:hover{color:var(--gold)}
+
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:768px){
+  .nav{padding:1rem 1.5rem}
+  .nav-links{display:none}
+  .section{padding:5rem 1.5rem}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<canvas id="canvas-bg"></canvas>
+
+<nav class="nav">
+  <div class="logo">AETHER<span>°</span></div>
+  <ul class="nav-links">
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#tiers">Membership</a></li>
+    <li><a href="#demo">Concierge</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">Now accepting founding members</div>
+  <h1>Intelligence crafted for the <strong>exceptional</strong>.</h1>
+  <p>AETHER is a private AI concierge architecture that orchestrates travel, calendar, research, and lifestyle logistics across a distributed mesh of agents.</p>
+  <div class="cta-group">
+    <a href="#demo" class="btn btn-primary">Begin Onboarding</a>
+    <a href="#experience" class="btn btn-ghost">Explore The System</a>
+  </div>
+  <div class="marquee"><div class="marquee-inner">Private AI agents · White-glove travel · Predictive scheduling · Secure identity orchestration · Real-time intelligence · Private AI agents · White-glove travel · Predictive scheduling · Secure identity orchestration · Real-time intelligence · </div></div>
+</section>
+
+<section class="section" id="experience">
+  <h2 class="section-title">Engineered for <span>discretionary time</span>.</h2>
+  <p class="section-sub">Every interaction routes through purpose-built microservices: Python analytics, TypeScript orchestration, and Java identity fabric.</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-icon">◈</div>
+      <h3>Predictive Itineraries</h3>
+      <p>Natural-language requests are parsed into structured travel plans, cost estimates, and calendar blocks before you finish your sentence.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">◉</div>
+      <h3>Identity Mesh</h3>
+      <p>Zero-trust session handling with JWT rings, hardware-attested keys, and per-request attestation via the Java identity service.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">◆</div>
+      <h3>Sentiment Analytics</h3>
+      <p>Behavioral signals are streamed into a Python analytics pipeline that tunes recommendations without exposing raw data.</p>
+    </div>
+  </div>
+  <div class="metrics" style="margin-top:5rem">
+    <div class="metric"><h4 data-count="12">0</h4><span>Agent Nodes</span></div>
+    <div class="metric"><h4 data-count="47">0</h4><span>Millisecond Latency</span></div>
+    <div class="metric"><h4 data-count="99.99">0</h4><span>Uptime SLA</span></div>
+    <div class="metric"><h4 data-count="240">0</h4><span>Countries Served</span></div>
+  </div>
+</section>
+
+<section class="section" id="tiers" style="background:var(--bg-2);max-width:none;padding-left:4rem;padding-right:4rem">
+  <h2 class="section-title" style="text-align:center">Founding <span>Memberships</span></h2>
+  <p class="section-sub" style="margin:0 auto 4rem;text-align:center">Three tiers. No hidden fees. Cancel any cycle.</p>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <h3>Resident</h3>
+      <p style="color:var(--muted);font-size:.9rem">For individual operators</p>
+      <div class="price">$290<span>/mo</span></div>
+      <ul><li>Single identity vault</li><li>50 concierge requests/mo</li><li>Standard analytics</li><li>Email + chat access</li></ul>
+      <button class="btn btn-ghost" onclick="selectTier('resident')">Select Resident</button>
+    </div>
+    <div class="price-card featured">
+      <div style="position:absolute;top:1rem;right:1rem;color:var(--gold);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase">Most selected</div>
+      <h3>Patron</h3>
+      <p style="color:var(--muted);font-size:.9rem">For founders and principals</p>
+      <div class="price">$890<span>/mo</span></div>
+      <ul><li>Family identity mesh</li><li>Unlimited requests</li><li>Priority agent routing</li><li>Dedicated channel</li><li>Quarterly strategy review</li></ul>
+      <button class="btn btn-primary" onclick="selectTier('patron')">Select Patron</button>
+    </div>
+    <div class="price-card">
+      <h3>House</h3>
+      <p style="color:var(--muted);font-size:.9rem">For family offices</p>
+      <div class="price">$2,900<span>/mo</span></div>
+      <ul><li>Household orchestration</li><li>White-glove travel desk</li><li>Custom agent training</li><li>On-premise option</li><li>Dedicated account architect</li></ul>
+      <button class="btn btn-ghost" onclick="selectTier('house')">Select House</button>
+    </div>
+  </div>
+</section>
+
+<section class="demo-section" id="demo">
+  <div class="demo-box">
+    <h2 class="section-title" style="margin-bottom:1rem">Experience the <span>Concierge</span></h2>
+    <p style="color:var(--muted);margin-bottom:2rem">Submit a request. Our orchestration layer routes it to the right agent and returns a structured plan.</p>
+    <form id="concierge-form">
+      <input type="text" id="request-input" placeholder="e.g. Book a private dinner in Kyoto next Thursday" required>
+      <select id="tier-select" required>
+        <option value="">Select membership tier</option>
+        <option value="resident">Resident</option>
+        <option value="patron">Patron</option>
+        <option value="house">House</option>
+      </select>
+      <input type="email" id="email-input" placeholder="Your email address" required>
+      <button type="submit" class="btn btn-primary">Generate Plan</button>
+    </form>
+    <div id="demo-result"></div>
+  </div>
+</section>
+
+<section class="section" id="faq">
+  <h2 class="section-title">Frequently <span>Asked</span></h2>
+  <div class="faq-item"><h4>Where does my data live?<span>+</span></h4><p>Encrypted at rest in regional vaults. No third-party model providers receive identifiable request payloads.</p></div>
+  <div class="faq-item"><h4>Can I self-host the identity service?<span>+</span></h4><p>House members receive the Java identity container and deployment playbooks for on-premise or private cloud attestation.</p></div>
+  <div class="faq-item"><h4>What makes this different from a virtual assistant?<span>+</span></h4><p>AETHER agents coordinate across services, reason about constraints, and maintain persistent context rather than executing one-off commands.</p></div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div>© 2026 AETHER Labs. All rights reserved.</div>
+    <div><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Status</a></div>
+  </div>
+</footer>
+
+<script>
+const canvas=document.getElementById('canvas-bg');
+const ctx=canvas.getContext('2d');
+let width,height,particles=[];
+function resize(){width=canvas.width=window.innerWidth;height=canvas.height=window.innerHeight}
+function createParticles(){particles=[];const count=Math.floor(width*height/12000);for(let i=0;i<count;i++){particles.push({x:Math.random()*width,y:Math.random()*height,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*1.5+.5,o:Math.random()*.5+.2})}}
+function draw(){
+  ctx.clearRect(0,0,width,height);
+  particles.forEach((p,i)=>{
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0||p.x>width)p.vx*=-1;
+    if(p.y<0||p.y>height)p.vy*=-1;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(212,175,55,${p.o})`;ctx.fill();
+    for(let j=i+1;j<particles.length;j++){
+      const q=particles[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=`rgba(212,175,55,${.12*(1-d/120)})`;ctx.stroke()}
+    }
+  });
+  requestAnimationFrame(draw);
+}
+resize();createParticles();draw();
+window.addEventListener('resize',()=>{resize();createParticles()});
+
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const counters=entry.target.querySelectorAll('[data-count]');
+      counters.forEach(c=>{const target=parseFloat(c.dataset.count);let current=0;const inc=target/60;const timer=setInterval(()=>{current+=inc;if(current>=target){current=target;clearInterval(timer)}c.textContent=target%1===0?Math.round(current):current.toFixed(2)+(target===99.99?'%':'')},25)});
+      observer.unobserve(entry.target);
+    }
+  });
+});
+observer.observe(document.querySelector('.metrics'));
+
+document.querySelectorAll('.faq-item').forEach(item=>item.addEventListener('click',()=>item.classList.toggle('open')));
+
+function selectTier(tier){
+  document.getElementById('tier-select').value=tier;
+  document.getElementById('demo').scrollIntoView({behavior:'smooth'});
+}
+
+const API_BASE=window.location.hostname==='localhost'?'http://localhost:4000':'https://api.aether.example';
+
+document.getElementById('concierge-form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const resultBox=document.getElementById('demo-result');
+  resultBox.style.display='block';
+  resultBox.innerHTML='<p style="color:var(--muted)">Routing through orchestration layer...</p>';
+  const payload={request:document.getElementById('request-input').value,tier:document.getElementById('tier-select').value,email:document.getElementById('email-input').value};
+  try{
+    const res=await fetch(`${API_BASE}/leads`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await res.json();
+    resultBox.innerHTML=`<h4 style="color:var(--gold);margin-bottom:.5rem">Plan Generated</h4><p>${data.message||'Your concierge request has been logged. An architect will reach out within 24 hours.'}</p>`;
+  }catch(err){
+    resultBox.innerHTML=`<h4 style="color:var(--accent);margin-bottom:.5rem">Demo Mode</h4><p>Backend not reachable. In production, this request would be routed to the ${payload.tier} tier orchestrator and a plan returned in under 300ms.</p>`;
+  }
+});
+</script>
+</body>
+</html>

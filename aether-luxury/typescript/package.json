@@ -1,0 +1,17 @@
+{
+  "name": "aether-lcs",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/lcs.js",
+  "types": "dist/lcs.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "bench": "tsx bench.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.4.0",
+    "tsx": "^4.7.0"
+  }
+}
